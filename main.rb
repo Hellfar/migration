@@ -24,7 +24,7 @@ if __FILE__ == $0
         if table[:type] == :table
           name = object.children.filter('attribute[@name=\'name\']').first
           if name
-            table[:name] = name.children.first.children.first.to_s[1..-2]
+            table[:name] = name.children.first.children.first.to_s[1..-2].downcase
           end
           attributes = object.children.filter('attribute[@name=\'attributes\']').first
           table[:fields] = fields = []
@@ -68,10 +68,13 @@ if __FILE__ == $0
   puts "class #{@name} < ActiveRecord::Migration"
   puts "  def change"
   @tables.select{|t|t[:type]==:table}.each do | table |
-    puts "    create_table :#{table[:name]}s do |t|"
-    puts
-    puts "      t.timestamps null: false"
-    puts "    end"
+  puts "    create_table :#{table[:name]}s do |t|"
+  puts
+  puts "      t.timestamps null: false"
+    table[:fields].each do | field |
+  puts "      t.#{field[:type]} :#{field[:name]}"
+    end
+  puts "    end"
   end
   puts "  end"
   puts "end"
