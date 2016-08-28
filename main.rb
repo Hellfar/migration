@@ -4,6 +4,7 @@ if __FILE__ == $0
 
   require 'zlib'
   require 'nokogiri'
+  require 'active_support/inflector'
 
   @tables = []
 
@@ -68,7 +69,7 @@ if __FILE__ == $0
   puts "class #{@name} < ActiveRecord::Migration"
   puts "  def change"
   @tables.select{|t|t[:type]==:table}.each do | table |
-  puts "    create_table :#{table[:name]}s do |t|"
+  puts "    create_table :#{table[:name].pluralize} do |t|"
   puts
   puts "      t.timestamps null: false"
     table[:fields].each do | field |
