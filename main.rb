@@ -14,14 +14,14 @@ if __FILE__ == $0
     doc.remove_namespaces!
     # p doc.xpath('//layer')
     doc.xpath('//layer').each do | layer |
-      puts "layer: #{layer["name"]}"
+      # puts "layer: #{layer["name"]}"
       layer.children.filter('object').each do | object |
-        puts "#{object["id"]} - #{object["type"]}"
+        # puts "#{object["id"]} - #{object["type"]}"
         table = {
           id: object["id"],
-          type: object["type"]
+          type: object["type"]["Database - ".length..-1].downcase.intern
         }
-        if object["type"] == "Database - Table"
+        if table[:type] == :table
           name = object.children.filter('attribute[@name=\'name\']').first
           if name
             table[:name] = name.children.first.children.first.to_s[1..-2]
@@ -42,7 +42,7 @@ if __FILE__ == $0
               fields << field
             end
           end
-        elsif object["type"] == "Database - Reference"
+        elsif table[:type] == :reference
           table[:connections] = connections = []
           connections_parent = object.children.filter('connections').first
           if connections_parent
@@ -57,10 +57,23 @@ if __FILE__ == $0
     end
   end
 
-  puts
-  puts "Tables:"
+  # puts
+  # puts "Tables:"
+  @name = "Create"
   @tables.each do | table |
-    p table
+    if table[:name]
+      @name << table[:name].capitalize
+    end
   end
+  puts "class #{@name} < ActiveRecord::Migration"
+  puts "  def change"
+  @tables.select{|t|t[:type]==:table}.each do | table |
+    puts "    create_table :#{table[:name]}s do |t|"
+    puts
+    puts "      t.timestamps null: false"
+    puts "    end"
+  end
+  puts "  end"
+  puts "end"
 
 end
