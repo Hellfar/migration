@@ -7,7 +7,7 @@ if __FILE__ == $0
 
   @tables = []
 
-  Zlib::GzipReader.open('Diagram1.dia') do | gz |
+  Zlib::GzipReader.open('example/Diagram1.dia') do | gz |
     doc = Nokogiri::XML(gz) do | config |
       config.options = Nokogiri::XML::ParseOptions::NOBLANKS | Nokogiri::XML::ParseOptions::STRICT | Nokogiri::XML::ParseOptions::NONET
     end
