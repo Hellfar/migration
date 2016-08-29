@@ -13,7 +13,6 @@ if __FILE__ == $0
       config.options = Nokogiri::XML::ParseOptions::NOBLANKS | Nokogiri::XML::ParseOptions::STRICT | Nokogiri::XML::ParseOptions::NONET
     end
     doc.remove_namespaces!
-    # p doc.xpath('//layer')
     doc.xpath('//layer').each do | layer |
       # puts "layer: #{layer["name"]}"
       layer.children.filter('object').each do | object |
@@ -57,6 +56,7 @@ if __FILE__ == $0
       end
     end
   end
+  @tables.sort{|x, y|x[1..-1].to_i <=> y[1..-1].to_i}
 
   # puts
   # puts "Tables:"
