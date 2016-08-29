@@ -72,6 +72,10 @@ if __FILE__ == $0
   puts "    create_table :#{table[:name].pluralize} do |t|"
   puts
   puts "      t.timestamps null: false"
+    @tables.select{|t|t[:type]==:reference&&t[:connections][1]==table[:id]}.each do | reference |
+      depend = @tables.select{|t|t[:id]==reference[:connections][0]}.first[:name]
+  puts "      t.reference #{depend}, null: true, foreign_key: true, type: :uuid"
+    end
     table[:fields].each do | field |
   puts "      t.#{field[:type]} :#{field[:name]}"
     end
