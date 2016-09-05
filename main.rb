@@ -33,9 +33,9 @@ if __FILE__ == $0
 
   doc.remove_namespaces!
   doc.xpath('//layer').each do | layer |
-    # puts "layer: #{layer["name"]}"
+    puts "layer: #{layer["name"]}" if options[:verbose]
     layer.children.filter('object').each do | object |
-      # puts "#{object["id"]} - #{object["type"]}"
+      puts "#{object["id"]} - #{object["type"]}" if options[:verbose]
       table = {
         id: object["id"],
         type: object["type"]["Database - ".length..-1].downcase.intern
@@ -76,8 +76,8 @@ if __FILE__ == $0
   end
   @tables.sort{|x, y|x[1..-1].to_i <=> y[1..-1].to_i}
 
-  # puts
-  # puts "Tables:"
+  puts if options[:verbose]
+  puts "Tables:" if options[:verbose]
   @name = "Create"
   @tables.each do | table |
     if table[:name]
