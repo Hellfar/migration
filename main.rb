@@ -1,5 +1,9 @@
 #!/usr/bin/env ruby
 
+def first_children_with_attribute attribute
+
+end
+
 if __FILE__ == $0
 
   require 'zlib'
@@ -7,6 +11,9 @@ if __FILE__ == $0
   require 'active_support/inflector'
 
   require 'optparse'
+
+  @tables = []
+  @out = $stdout
 
   options = {}
   OptionParser.new do | opts |
@@ -20,11 +27,9 @@ if __FILE__ == $0
     end
     opts.on("-o", "--output", "Output") do | o |
       options[:output] = o
-      $stdout = File.open options[:output], "a"
+      @out = File.open options[:output], "a"
     end
   end.parse!
-
-  @tables = []
 
   gz = Zlib::GzipReader.new(ARGF)
   doc = Nokogiri::XML(gz) do | config |
@@ -33,9 +38,9 @@ if __FILE__ == $0
 
   doc.remove_namespaces!
   doc.xpath('//layer').each do | layer |
-    puts "layer: #{layer["name"]}" if options[:verbose]
+    @out.puts "layer: #{layer["name"]}" if options[:verbose]
     layer.children.filter('object').each do | object |
-      puts "#{object["id"]} - #{object["type"]}" if options[:verbose]
+      @out.puts "#{object["id"]} - #{object["type"]}" if options[:verbose]
       table = {
         id: object["id"],
         type: object["type"]["Database - ".length..-1].downcase.intern
@@ -76,8 +81,8 @@ if __FILE__ == $0
   end
   @tables.sort{|x, y|x[1..-1].to_i <=> y[1..-1].to_i}
 
-  puts if options[:verbose]
-  puts "Tables:" if options[:verbose]
+  @out.puts if options[:verbose]
+  @out.puts "Tables:" if options[:verbose]
   @name = "Create"
   @tables.each do | table |
     if table[:name]
