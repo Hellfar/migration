@@ -1,14 +1,26 @@
 #!/usr/bin/env ruby
 
-def first_children_with_attribute attribute
+require 'zlib'
+require 'nokogiri'
+require 'active_support/inflector'
 
+module Nokogiri
+  module XML
+    class Node
+      alias :all_children_to_array :children
+
+      def children filter = nil
+        if filter
+          NodeSet.new self.document, self.all_children_to_array.filter(filter)
+        else
+          self.all_children_to_array
+        end
+      end
+    end
+  end
 end
 
 if __FILE__ == $0
-
-  require 'zlib'
-  require 'nokogiri'
-  require 'active_support/inflector'
 
   require 'optparse'
 
@@ -39,23 +51,23 @@ if __FILE__ == $0
   doc.remove_namespaces!
   doc.xpath('//layer').each do | layer |
     @out.puts "layer: #{layer["name"]}" if options[:verbose]
-    layer.children.filter('object').each do | object |
+    layer.children('object').each do | object |
       @out.puts "#{object["id"]} - #{object["type"]}" if options[:verbose]
       table = {
         id: object["id"],
         type: object["type"]["Database - ".length..-1].downcase.intern
       }
       if table[:type] == :table
-        name = object.children.filter('attribute[@name=\'name\']').first
+        name = object.children("attribute[@name='name']").first
         if name
           table[:name] = name.children.first.children.first.to_s[1..-2].downcase
         end
-        attributes = object.children.filter('attribute[@name=\'attributes\']').first
+        attributes = object.children("attribute[@name='attributes']").first
         table[:fields] = fields = []
         if attributes
           attributes.children.each do | composite |
-            field_name = composite.children.filter('attribute[@name=\'name\']').first
-            type = composite.children.filter('attribute[@name=\'type\']').first
+            field_name = composite.children("attribute[@name='name']").first
+            type = composite.children("attribute[@name='type']").first
             field = Hash.new
             if field_name
               field[:name] = field_name.children.first.children.first.to_s[1..-2]
@@ -68,7 +80,7 @@ if __FILE__ == $0
         end
       elsif table[:type] == :reference
         table[:connections] = connections = []
-        connections_parent = object.children.filter('connections').first
+        connections_parent = object.children('connections').first
         if connections_parent
           connections_parent.children.each do | connection |
             connections << connection["to"]
