@@ -20,28 +20,8 @@ module Nokogiri
   end
 end
 
-if __FILE__ == $0
-
-  require 'optparse'
-
-  @tables = []
-  @out = $stdout
-
-  options = {}
-  OptionParser.new do | opts |
-    opts.banner = "Usage: main.rb [-v] [-i] [-p] [-o]"
-
-    opts.on("-v", "--[no-]verbose", "Run verbosely") do | v |
-      options[:verbose] = v
-    end
-    opts.on("-p", "--previous-state", "Previous state") do | ps |
-      options[:previousstate] = ps
-    end
-    opts.on("-o", "--output", "Output") do | o |
-      options[:output] = o
-      @out = File.open options[:output], "a"
-    end
-  end.parse!
+def read_dia_file file
+  tables = []
 
   gz = Zlib::GzipReader.new(ARGF)
   doc = Nokogiri::XML(gz) do | config |
@@ -50,9 +30,9 @@ if __FILE__ == $0
 
   doc.remove_namespaces!
   doc.xpath('//layer').each do | layer |
-    @out.puts "layer: #{layer["name"]}" if options[:verbose]
+    @out.puts "layer: #{layer["name"]}" if @options[:verbose]
     layer.children('object').each do | object |
-      @out.puts "#{object["id"]} - #{object["type"]}" if options[:verbose]
+      @out.puts "#{object["id"]} - #{object["type"]}" if @options[:verbose]
       table = {
         id: object["id"],
         type: object["type"]["Database - ".length..-1].downcase.intern
@@ -88,13 +68,38 @@ if __FILE__ == $0
         end
       end
 
-      @tables << table
+      tables << table
     end
   end
-  @tables.sort{|x, y|x[1..-1].to_i <=> y[1..-1].to_i}
+  tables.sort{|x, y|x[1..-1].to_i <=> y[1..-1].to_i}
+end
 
-  @out.puts if options[:verbose]
-  @out.puts "Tables:" if options[:verbose]
+if __FILE__ == $0
+
+  require 'optparse'
+
+  @out = $stdout
+
+  @options = {}
+  OptionParser.new do | opts |
+    opts.banner = "Usage: main.rb [-v] [-i] [-p] [-o]"
+
+    opts.on("-v", "--[no-]verbose", "Run verbosely") do | v |
+      @options[:verbose] = v
+    end
+    opts.on("-p", "--previous-state", "Previous state") do | ps |
+      @options[:previousstate] = ps
+    end
+    opts.on("-o", "--output", "Output") do | o |
+      @options[:output] = o
+      @out = File.open @options[:output], "a"
+    end
+  end.parse!
+
+  @tables = read_dia_file ARGF
+
+  @out.puts if @options[:verbose]
+  @out.puts "Tables:" if @options[:verbose]
   @name = "Create"
   @tables.each do | table |
     if table[:name]
