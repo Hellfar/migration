@@ -4,6 +4,43 @@ require 'zlib'
 require 'nokogiri'
 require 'active_support/inflector'
 
+class Array
+  def diff cmp_ary, recursive = true
+    return [] if self == cmp_ary
+    return cmp_ary if (cmp_ary.class != Array or self == [])
+
+    r_array = []
+    self.each do | key, value |
+      if recursive and (value.class == Hash or value.class == Array) and value.class == cmp_ary[key].class
+        r_array[key] = value.diff cmp_ary[key], recursive
+      elsif cmp_ary[key] != value
+        r_array[key] = cmp_ary[key]
+      end
+    end
+    r_array
+  end
+end
+
+class Hash
+  def diff cmp_ha, recursive = true
+    return {} if self == cmp_ha
+    return cmp_ha if (cmp_ha.class != Hash or self == {})
+
+    r_hash = {}
+    self.each do | key, value |
+      if recursive and (value.class == Hash or value.class == Array) and value.class == cmp_ha[key].class
+        r_hash[key] = value.diff cmp_ha[key], recursive
+      elsif cmp_ha[key] != value and cmp_ha[key]
+        r_hash[key] = cmp_ha[key]
+      end
+    end
+    (cmp_ha.keys - self.keys).each do | key |
+      r_hash[key] = cmp_ha[key]
+    end
+    r_hash
+  end
+end
+
 module Nokogiri
   module XML
     class Node
