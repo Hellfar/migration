@@ -10,7 +10,7 @@ class Array
     return cmp_ary if (cmp_ary.class != Array or self == [])
 
     r_array = []
-    self.each do | key, value |
+    self.each_with_index do | value, key |
       if recursive and (value.class == Hash or value.class == Array) and value.class == cmp_ary[key].class
         r_array[key] = value.diff cmp_ary[key], recursive
       elsif cmp_ary[key] != value
@@ -138,11 +138,11 @@ if __FILE__ == $0
   puts "Previous:" if @options[:verbose]
   @previouses = read_dia_file File.open @options[:previousstate] if @options[:previousstate]
 
-  # # p @previous
-  # # p @tables
+  # p @previous
+  # p @tables
   # @previouses.each_with_index do | previous, i |
-  #   p previous
-  #   p @tables[i]
+  #   # p previous
+  #   # p @tables[i]
   #   p previous.diff @tables[i]
   # end
 
