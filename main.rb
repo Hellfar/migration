@@ -19,6 +19,9 @@ class Array
         end
       end
     end
+    (cmp_ary - self).each do | value |
+      r_array << value
+    end
     r_array
   end
 end
@@ -144,11 +147,11 @@ if __FILE__ == $0
 
   # p @previous
   # p @tables
-  # @previouses.each_with_index do | previous, i |
-  #   # p previous
-  #   # p @tables[i]
-  #   p previous.diff @tables[i]
-  # end
+  @previouses.each_with_index do | previous, i |
+    # p previous
+    # p @tables[i]
+    p previous.diff @tables[i]
+  end
 
   @out.puts if @options[:verbose]
   @out.puts "Tables:" if @options[:verbose]
