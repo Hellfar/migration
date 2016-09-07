@@ -98,6 +98,16 @@ if __FILE__ == $0
 
   puts "Current:" if @options[:verbose]
   @tables = read_dia_file ARGF
+  puts "Previous:" if @options[:verbose]
+  @previouses = read_dia_file File.open @options[:previousstate] if @options[:previousstate]
+
+  # # p @previous
+  # # p @tables
+  # @previouses.each_with_index do | previous, i |
+  #   p previous
+  #   p @tables[i]
+  #   p previous.diff @tables[i]
+  # end
 
   @out.puts if @options[:verbose]
   @out.puts "Tables:" if @options[:verbose]
