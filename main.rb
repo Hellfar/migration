@@ -87,7 +87,7 @@ if __FILE__ == $0
     opts.on("-v", "--[no-]verbose", "Run verbosely") do | v |
       @options[:verbose] = v
     end
-    opts.on("-p", "--previous-state", "Previous state") do | ps |
+    opts.on("-pPREVIOUS", "--previous-state=PREVIOUS", "Previous state") do | ps |
       @options[:previousstate] = ps
     end
     opts.on("-o", "--output", "Output") do | o |
