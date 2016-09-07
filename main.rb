@@ -23,7 +23,7 @@ end
 def read_dia_file file
   tables = []
 
-  gz = Zlib::GzipReader.new(ARGF)
+  gz = Zlib::GzipReader.new(file)
   doc = Nokogiri::XML(gz) do | config |
     config.options = Nokogiri::XML::ParseOptions::NOBLANKS | Nokogiri::XML::ParseOptions::STRICT | Nokogiri::XML::ParseOptions::NONET
   end
@@ -96,6 +96,7 @@ if __FILE__ == $0
     end
   end.parse!
 
+  puts "Current:" if @options[:verbose]
   @tables = read_dia_file ARGF
 
   @out.puts if @options[:verbose]
