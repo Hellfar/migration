@@ -11,10 +11,12 @@ class Array
 
     r_array = []
     self.each_with_index do | value, key |
-      if recursive and (value.class == Hash or value.class == Array) and value.class == cmp_ary[key].class
-        r_array[key] = value.diff cmp_ary[key], recursive
-      elsif cmp_ary[key] != value
-        r_array[key] = cmp_ary[key]
+      if cmp_ary[key] != value
+        if recursive and (value.class == Hash or value.class == Array) and value.class == cmp_ary[key].class
+          r_array[key] = value.diff cmp_ary[key], recursive
+        else
+          r_array[key] = cmp_ary[key]
+        end
       end
     end
     r_array
@@ -28,10 +30,12 @@ class Hash
 
     r_hash = {}
     self.each do | key, value |
-      if recursive and (value.class == Hash or value.class == Array) and value.class == cmp_ha[key].class
-        r_hash[key] = value.diff cmp_ha[key], recursive
-      elsif cmp_ha[key] != value and cmp_ha[key]
-        r_hash[key] = cmp_ha[key]
+      if cmp_ha[key] != value and cmp_ha[key]
+        if recursive and (value.class == Hash or value.class == Array) and value.class == cmp_ha[key].class
+          r_hash[key] = value.diff cmp_ha[key], recursive
+        else
+          r_hash[key] = cmp_ha[key]
+        end
       end
     end
     (cmp_ha.keys - self.keys).each do | key |
