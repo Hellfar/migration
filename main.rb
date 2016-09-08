@@ -13,9 +13,9 @@ class Array
     self.each_with_index do | value, key |
       if cmp_ary[key] != value
         if recursive and (value.class == Hash or value.class == Array) and value.class == cmp_ary[key].class
-          r_array[key] = value.diff cmp_ary[key], recursive
-        else
-          r_array[key] = cmp_ary[key]
+          r_array << value.diff(cmp_ary[key], recursive)
+        elsif cmp_ary[key]
+          r_array << cmp_ary[key]
         end
       end
     end
@@ -145,13 +145,22 @@ if __FILE__ == $0
   puts "Previous:" if @options[:verbose]
   @previouses = read_dia_file File.open @options[:previousstate] if @options[:previousstate]
 
-  # p @previous
-  # p @tables
-  @previouses.each_with_index do | previous, i |
-    # p previous
-    # p @tables[i]
-    p previous.diff @tables[i]
+  puts if @options[:verbose]
+  puts "Evaluating differencies..." if @options[:verbose]
+  create_table = []
+  delete_table = []
+  add_column = {}
+  remove_column = {}
+  @previouses.select{|e|e[:type]==:table}.each_with_index do | previous, i |
+    puts "#{previous[:name]}" if @options[:verbose]
+    add_column[previous[:name]] = previous[:fields].diff @tables[i][:fields]
+    remove_column[previous[:name]] = @tables[i][:fields].diff previous[:fields]
+    # p @tables[i][:fields]
+    # p @tables[i][:fields].diff previous[:fields]
   end
+
+  p add_column
+  p remove_column
 
   @out.puts if @options[:verbose]
   @out.puts "Tables:" if @options[:verbose]
