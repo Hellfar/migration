@@ -143,14 +143,19 @@ if __FILE__ == $0
   puts "Current:" if @options[:verbose]
   @tables = read_dia_file ARGF
 
+  tables_names = @tables.select{|e|e[:type]==:table}.map{|e|e[:name]}
+
   if @options[:previousstate]
     puts "Previous:" if @options[:verbose]
     @previouses = read_dia_file File.open @options[:previousstate]
 
+    previouses_names = @previouses.select{|e|e[:type]==:table}.map{|e|e[:name]}
+
     puts if @options[:verbose]
     puts "Evaluating differencies..." if @options[:verbose]
-    create_table = (@tables.map{|e|e[:name]} - @previouses.map{|e|e[:name]})
-    delete_table = (@previouses.map{|e|e[:name]} - @tables.map{|e|e[:name]})
+
+    create_table = (tables_names - previouses_names)
+    delete_table = (previouses_names - tables_names)
     add_column = {}
     remove_column = {}
     @previouses.select{|e|e[:type]==:table}.each_with_index do | previous, i |
@@ -158,8 +163,15 @@ if __FILE__ == $0
       add_column[previous[:name]] = previous[:fields].diff @tables[i][:fields]
       remove_column[previous[:name]] = @tables[i][:fields].diff previous[:fields]
     end
+  else
+    create_table = tables_names
+    delete_table = []
+    add_column = {}
+    remove_column = {}
   end
 
+  p create_table
+  p delete_table
   p add_column
   p remove_column
 
