@@ -1,8 +1,10 @@
 Migration
 =========
 
-# Usage example
+# Usage examples
 
 ```
-./main.rb examples/Diagram1.dia
+./main.rb examples/current.dia
+./main.rb examples/current.dia -v
+./main.rb examples/current.dia --previous-state=examples/previous.dia
 ```
