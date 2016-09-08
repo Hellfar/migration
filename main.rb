@@ -155,7 +155,7 @@ if __FILE__ == $0
     puts "Evaluating differencies..." if @options[:verbose]
 
     create_table = (tables_names - previouses_names)
-    delete_table = (previouses_names - tables_names)
+    drop_table = (previouses_names - tables_names)
     add_column = {}
     remove_column = {}
     @previouses.select{|e|e[:type]==:table}.each_with_index do | previous, i |
@@ -165,19 +165,23 @@ if __FILE__ == $0
     end
   else
     create_table = tables_names
-    delete_table = []
+    drop_table = []
     add_column = {}
     remove_column = {}
   end
 
   # p create_table
-  # p delete_table
+  # p drop_table
   # p add_column
   # p remove_column
 
   @out.puts if @options[:verbose]
   @out.puts "Tables:" if @options[:verbose]
-  @name = "Create"
+  @name = if @options[:previousstate]
+    "Change"
+  else
+    "Create"
+  end
   @tables.each do | table |
     if table[:name]
       @name << table[:name].capitalize
@@ -197,6 +201,19 @@ if __FILE__ == $0
   puts "      t.#{field[:type]} :#{field[:name]}"
     end
   puts "    end"
+  end
+  drop_table.map{|e|@tables[@tables.index{|u|u[:name]==e}]}.each do | table |
+  puts "    drop_table :#{table[:name].pluralize}"
+  end
+  add_column.each do | name, fields |
+    fields.each do | field |
+  puts "    add_column :#{name}, :#{field[:name]}, :#{field[:type]}"
+    end
+  end
+  remove_column.each do | name, fields |
+    fields.each do | field |
+  puts "    remove_column :#{name}, :#{field[:name]}"
+    end
   end
   puts "  end"
   puts "end"
