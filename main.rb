@@ -142,21 +142,22 @@ if __FILE__ == $0
 
   puts "Current:" if @options[:verbose]
   @tables = read_dia_file ARGF
-  puts "Previous:" if @options[:verbose]
-  @previouses = read_dia_file File.open @options[:previousstate] if @options[:previousstate]
 
-  puts if @options[:verbose]
-  puts "Evaluating differencies..." if @options[:verbose]
-  create_table = []
-  delete_table = []
-  add_column = {}
-  remove_column = {}
-  @previouses.select{|e|e[:type]==:table}.each_with_index do | previous, i |
-    puts "#{previous[:name]}" if @options[:verbose]
-    add_column[previous[:name]] = previous[:fields].diff @tables[i][:fields]
-    remove_column[previous[:name]] = @tables[i][:fields].diff previous[:fields]
-    # p @tables[i][:fields]
-    # p @tables[i][:fields].diff previous[:fields]
+  if @options[:previousstate]
+    puts "Previous:" if @options[:verbose]
+    @previouses = read_dia_file File.open @options[:previousstate]
+
+    puts if @options[:verbose]
+    puts "Evaluating differencies..." if @options[:verbose]
+    create_table = (@tables.map{|e|e[:name]} - @previouses.map{|e|e[:name]})
+    delete_table = (@previouses.map{|e|e[:name]} - @tables.map{|e|e[:name]})
+    add_column = {}
+    remove_column = {}
+    @previouses.select{|e|e[:type]==:table}.each_with_index do | previous, i |
+      puts "#{previous[:name]}" if @options[:verbose]
+      add_column[previous[:name]] = previous[:fields].diff @tables[i][:fields]
+      remove_column[previous[:name]] = @tables[i][:fields].diff previous[:fields]
+    end
   end
 
   p add_column
