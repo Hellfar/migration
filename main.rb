@@ -170,10 +170,10 @@ if __FILE__ == $0
     remove_column = {}
   end
 
-  p create_table
-  p delete_table
-  p add_column
-  p remove_column
+  # p create_table
+  # p delete_table
+  # p add_column
+  # p remove_column
 
   @out.puts if @options[:verbose]
   @out.puts "Tables:" if @options[:verbose]
@@ -185,7 +185,7 @@ if __FILE__ == $0
   end
   puts "class #{@name} < ActiveRecord::Migration"
   puts "  def change"
-  @tables.select{|t|t[:type]==:table}.each do | table |
+  create_table.map{|e|@tables[@tables.index{|u|u[:name]==e}]}.each do | table |
   puts "    create_table :#{table[:name].pluralize} do |t|"
   puts
   puts "      t.timestamps null: false"
